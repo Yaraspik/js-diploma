@@ -3,6 +3,7 @@ const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
+  devtool: 'source-map',
   watch: true,
   entry: './src/index.js',
   mode: 'development',
@@ -13,12 +14,7 @@ module.exports = {
     rules: [
       {
         test: /\.png$/,
-        type: 'asset',
-        parser: {
-          dataUrlCondition: {
-            maxSize: 2 * 1024,
-          },
-        },
+        type: 'asset/resource',
       },
       {
         test: /\.js$/,

@@ -11,6 +11,14 @@ export default class GameState {
     this.playerChars = [];
   }
 
+  get positionedCharacters() {
+    return this.playerChars.concat(this.computerChars);
+  }
+
+  getPositionedCharacterByPosition(position) {
+    return this.positionedCharacters.find(({ index }) => index === position);
+  }
+
   passMove(value) {
     this.step = value;
   }
@@ -25,5 +33,9 @@ export default class GameState {
 
   set(title, value) {
     this[title] = value;
+  }
+
+  nextLevel() {
+    this.level += 1;
   }
 }
