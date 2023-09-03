@@ -85,19 +85,10 @@ export default class GamePlay {
   *
   * @param positions array of PositionedCharacter objects
   */
-  redrawPositions(playerPositions, computerPositions) {
+  redrawPositions(positions) {
     for (const cell of this.cells) {
       cell.innerHTML = '';
     }
-
-    const positions = [];
-    playerPositions.forEach((element) => {
-      positions.push(element);
-    });
-
-    computerPositions.forEach((element) => {
-      positions.push(element);
-    });
 
     for (const position of positions) {
       const cellEl = this.boardEl.children[position.row].children[position.column];

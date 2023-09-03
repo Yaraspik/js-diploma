@@ -1,6 +1,5 @@
 import Team from './Team';
 import PositionedCharacter from './PositionedCharacter';
-import UpgradeCharacter from './UpgradeCharacter';
 
 /**
  * Формирует экземпляр персонажа из массива allowedTypes со
@@ -34,8 +33,10 @@ export function generateTeam(allowedTypes, maxLevel, characterCount) {
   const characters = [];
   while (characters.length < characterCount) {
     const character = iterator.next().value;
-    if (character.level !== 1) {
-      UpgradeCharacter.create(character);
+    if (character.level > 1) {
+      for (let i = 0; i < character.level; i += 1) {
+        character.levelUp();
+      }
     }
     characters.push(character);
   }
