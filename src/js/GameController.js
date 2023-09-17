@@ -60,15 +60,15 @@ export default class GameController {
 
     const playerTypes = [Bowman, Swordsman, Magician];
     const playerTeam = generateTeam(playerTypes, 3, 4);
-    this.gameState.playerChars = generatePosition(playerTeam.characters, boardSize, true);
+    const playerChars = generatePosition(playerTeam.characters, boardSize, true);
 
     const computerTypes = [Daemon, Vampire, Undead];
     const computerTeam = generateTeam(computerTypes, 3, 4);
-    this.gameState.computerChars = generatePosition(computerTeam.characters, boardSize);
+    const computerChars = generatePosition(computerTeam.characters, boardSize);
 
-    this.gameState.level = 0;
-    this.gameState.blockField = false;
-    this.gamePlay.drawUi(themes[this.gameState.get('level')]);
+    this.gameState.startNewGame(playerChars, computerChars);
+
+    this.gamePlay.drawUi(themes[this.gameState.level]);
     this.gamePlay.redrawPositions(this.gameState.positionedCharacters);
   }
 
@@ -77,20 +77,19 @@ export default class GameController {
   }
 
   onBtnSaveGameClick() {
-    this.stateService.save(this.gameState);
+    this.stateService.save(this.gameState.getData());
   }
 
   onBtnLoadGameClick() {
     const res = this.stateService.load();
-    this.gameState.blockField = res.blockField;
-    this.gameState.score = res.score;
-    this.gameState.computerChars = res.computerChars;
-    this.gameState.playerChars = res.playerChars;
-    this.gameState.level = res.level;
-    this.gameState.step = res.step;
-    this.gameState.selectedChar = null;
 
-    this.gamePlay.drawUi(themes[res.level]);
+    if (!res) {
+      alert('Нет сохраненной игры');
+      return;
+    }
+
+    this.gameState.loadGameData(res);
+    this.gamePlay.drawUi(themes[this.gameState.level]);
     this.gamePlay.redrawPositions(this.gameState.positionedCharacters);
   }
 
@@ -116,13 +115,18 @@ export default class GameController {
         if (selectedChar) {
           this.gamePlay.deselectCell(this.gameState.selectedChar.index);
         }
-        this.gameState.selectedChar = positionedCharacter;
+        this.gameState.select(positionedCharacter);
         this.gamePlay.selectCell(this.gameState.selectedChar.index);
         return;
       }
 
       if (motion.canAttack === false) {
         GamePlay.showError('Ты не можешь его атаковать');
+        return;
+      }
+
+      if (!selectedChar) {
+        GamePlay.showError('Выбери персонажа');
         return;
       }
 
@@ -142,12 +146,12 @@ export default class GameController {
         }
       } else {
         this.gamePlay.redrawPositions(this.gameState.positionedCharacters);
-        this.gameState.passMove('computer');
+        this.gameState.passMove();
         ArtificialIntelligence.step(this);
       }
 
       if (this.gameState.computerChars.length === 0) {
-        if (this.gameState.get('level') === 3) {
+        if (this.gameState.level === 3) {
           this.gameState.blockField = true;
           this.gamePlay.deselectCell(this.gameState.selectedChar.index);
         } else {
@@ -157,11 +161,13 @@ export default class GameController {
 
           const computerTypes = [Daemon, Vampire, Undead];
           const computerTeam = generateTeam(computerTypes, 3, 4);
-          this.gameState.computerChars = generatePosition(computerTeam.characters, boardSize);
+          const computerChars = generatePosition(computerTeam.characters, boardSize);
+          this.gameState.addNewEnemies(computerChars);
           const playerTeam = this.gameState.playerChars.map((el) => el.character);
-          this.gameState.playerChars = generatePosition(playerTeam, boardSize, true);
+          const playerChars = generatePosition(playerTeam, boardSize, true);
+          this.gameState.addNewPlayersCharacters(playerChars);
 
-          this.gamePlay.drawUi(themes[this.gameState.get('level')]);
+          this.gamePlay.drawUi(themes[this.gameState.level]);
 
           if (this.gameState.selectedChar) {
             this.gamePlay.deselectCell(this.gameState.selectedChar.index);
@@ -189,7 +195,7 @@ export default class GameController {
   }
 
   onCellEnter(index) {
-    this.gameState.hoveredCell = index;
+    this.gameState.hover(index);
 
     // Если игра окончена, то поле блокируется
     if (this.gameState.blockField) {
