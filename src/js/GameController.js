@@ -77,11 +77,16 @@ export default class GameController {
   }
 
   onBtnSaveGameClick() {
-    this.stateService.save(this.gameState);
+    this.stateService.save(this.gameState.getData());
   }
 
   onBtnLoadGameClick() {
     const res = this.stateService.load();
+
+    if (!res) {
+      alert('Нет сохраненной игры');
+      return;
+    }
 
     this.gameState.loadGameData(res);
     this.gamePlay.drawUi(themes[this.gameState.level]);

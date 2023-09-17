@@ -69,6 +69,19 @@ export default class GameState {
     this.#playerChars = chars;
   }
 
+  getData() {
+    return {
+      hoveredCell: this.#hoveredCell,
+      selectedChar: this.#selectedChar,
+      step: this.#step,
+      level: this.#level,
+      blockField: this.#blockField,
+      score: this.#score,
+      computerChars: this.#computerChars,
+      playerChars: this.#playerChars,
+    };
+  }
+
   // getters
   get level() {
     return this.#level;
